@@ -1,0 +1,185 @@
+openapi: '3.0.2'
+info:
+  title: Autos API Demo
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1 
+tags:
+  - name: auto 
+    description: Automobiles for sale
+components:
+  schemas:
+    autos-list:
+      properties:
+        automobiles:
+          $ref: '#/components/schemas/Automobile'
+    Automobile: 
+      type: object
+      properties:
+        id:
+          description: internal identifier of auto
+          type: integer
+          format: int64
+        vin:
+          description: Vehical Identification Number / public id of auto
+          type: string
+        year:
+          type: string 
+          description: 'YYYY'
+          maxLength: 4
+          pattern: '^\d{4}' 
+        make:
+          type: string 
+        model: 
+          type: string
+        status:
+          type: string
+          description: Status of auto
+          enum:
+            - available
+            - sold
+        color:
+          description: color of auto
+          type: string
+        owner:
+          description: owner of the car 
+          type: string
+        ownerPhone:
+          description: phone number of owner
+          type: string
+    Owner:
+      type: object
+      properties:
+        name:
+          description: name of the owner 
+          type: string
+        phone: 
+          description: telephone number of the owner
+          type: string
+paths:
+  /autos:
+    post:
+      tags:
+        - "auto"
+      summary: Add a new auto 
+      operationId: addAuto
+      requestBody: 
+        description: Automobile to be added to database
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Automobile'
+        required: true
+      responses:
+        '200':
+          description: Automobile as added to database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automobile'
+        '400':
+          description: Invalid or incomplete data
+          content: {}
+    get:
+      tags:
+        - "auto"
+      summary: Search for automobiles
+      description: With no parameters, api returns all autos in the database.  Otherwise, api will filter based on params. 
+      operationId: searchAutos
+      parameters:
+        - name: color
+          in: query
+          description: Search for cars by color  
+          required: false 
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/autos-list'
+        '204':
+          description: no content found
+          content: {}
+        '500':
+          description: system error
+          content: {}
+  /autos/{vin}:
+    get:
+      tags:
+        - "auto"
+      summary: Retrieve single auto by vin 
+      operationId: findAuto
+      parameters:
+        - name: vin
+          in: path
+          description: Vehicle Identification Number
+          required: true
+          schema:
+            type: string 
+      responses:
+        '200': 
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automobile'
+        '204':
+          description: no content / not found
+          content: {}
+        '500': 
+          description: System error 
+    patch:
+      tags:
+        - "auto"
+      summary: Sell the car (set the owner name)
+      operationId: updateAuto
+      parameters:
+        - name: vin 
+          in: path 
+          description: Vehicle Identification Number
+          required: true
+          schema:
+            $ref: '#/components/schemas/Owner'
+      responses:
+        '200':
+          description: Update successful 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automobile'
+        '204':
+          description: Vehicle with this VIN not found 
+          content: {}
+        '500':
+          description: System error
+          content: {} 
+    delete:
+      tags:
+        - "auto"
+      summary: Delete an auto by VIN
+      operationId: deleteAuto
+      parameters:
+        - name: vin 
+          in: path 
+          description: Vehicle Identification Number
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Update successful 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Automobile'
+        '204':
+          description: Vehicle with this VIN not found 
+          content: {}
+        '500':
+          description: System error
+          content: {} 
+
+
